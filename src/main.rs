@@ -1,3 +1,4 @@
+use anyhow::Context;
 use clap::Parser;
 use std::fs;
 
@@ -12,14 +13,22 @@ struct Cli {
     path: std::path::PathBuf,
 }
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
 
-    let content = fs::read_to_string(&args.path).expect("could not read file");
+    // let content = fs::read_to_string(&args.path).expect("could not read file");
+    let content = fs::read_to_string(&args.path).with_context(|| {
+        format!(
+            "could not read file `{}`",
+            &args.path.to_str().unwrap()
+        )
+    })?;
 
     for line in content.lines() {
         if line.contains(&args.pattern) {
             println!("{}", line);
         }
     }
+
+    Ok(())
 }
