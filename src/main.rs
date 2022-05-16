@@ -1,6 +1,6 @@
 use anyhow::Context;
 use clap::Parser;
-use std::fs;
+use std::{fs, thread, time::Duration};
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[derive(Parser)]
@@ -30,5 +30,19 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
+
+    let pb = indicatif::ProgressBar::new(5);
+    for i in 0..5 {
+        do_hard_work();
+        pb.println(format!("[+] finished #{}", i));
+        pb.inc(1);
+    }
+    pb.finish_with_message("done");
+
     Ok(())
+}
+
+
+fn do_hard_work() {
+    thread::sleep(Duration::from_secs(1));
 }
