@@ -15,21 +15,10 @@ struct Cli {
 
 fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
+    let content = std::fs::read_to_string(&args.path)
+        .with_context(|| format!("could not read file `{}`", args.path.display()))?;
 
-    // let content = fs::read_to_string(&args.path).expect("could not read file");
-    let content = fs::read_to_string(&args.path).with_context(|| {
-        format!(
-            "could not read file `{}`",
-            &args.path.to_str().unwrap()
-        )
-    })?;
-
-    for line in content.lines() {
-        if line.contains(&args.pattern) {
-            println!("{}", line);
-        }
-    }
-
+    find_matches(&content, &args.pattern, &mut std::io::stdout());
 
     let pb = indicatif::ProgressBar::new(5);
     for i in 0..5 {
@@ -47,6 +36,14 @@ fn do_hard_work() {
     thread::sleep(Duration::from_secs(1));
 }
 
+fn find_matches(content: &str, pattern: &str, mut writer: impl std::io::Write) {
+    for line in content.lines() {
+        if line.contains(pattern) {
+            writeln!(writer, "{}", line);
+        }
+    }
+}
+
 #[allow(unused)]
 fn answer() -> i8 {
     42
@@ -55,4 +52,11 @@ fn answer() -> i8 {
 #[test]
 fn check_answer_validity() {
     assert_eq!(answer(), 42);
+}
+
+#[test]
+fn find_a_match() {
+    let mut result = Vec::new();
+    find_matches("lorem ipsum\ndolor sit amet", "lorem", &mut result);
+    assert_eq!(result, b"lorem ipsum\n");
 }
