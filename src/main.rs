@@ -46,3 +46,13 @@ fn main() -> anyhow::Result<()> {
 fn do_hard_work() {
     thread::sleep(Duration::from_secs(1));
 }
+
+#[allow(unused)]
+fn answer() -> i8 {
+    42
+}
+
+#[test]
+fn check_answer_validity() {
+    assert_eq!(answer(), 42);
+}
